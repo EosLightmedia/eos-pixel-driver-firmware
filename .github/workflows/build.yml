@@ -1,9 +1,7 @@
 name: Build binaries
 
 on:
-  schedule:
-    - cron: "0 3 */2 * *"
-  push:
+  workflow_dispatch:
   pull_request:
     paths:
     - '.github/workflows/*.yml'
@@ -39,3 +37,9 @@ jobs:
 
       - name: List artifacts directory
         run: ls ./artifacts/* -l
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pico-binaries
+          path: ./artifacts/*
