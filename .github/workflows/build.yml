@@ -32,14 +32,14 @@ jobs:
         run: mkdir ./artifacts
 
       - name: Add firmware files to rp2/modules
-        run: cp -r ./rp2/* ./path/to/micropython/ports/rp2/modules/
+        run: cp -r ./rp2/* ./micropython/ports/rp2/modules/
 
       - name: Compile for raspberry pico
         if: always()
         run: ./scripts/rp2/pico.sh
 
       - name: Move firmware to artifacts
-        run: mv ./repos/micropython/ports/rp2/build/*.uf2 ./artifacts/
+        run: mv ./micropython/ports/rp2/build/firmware.uf2 ./artifacts/
 
       - name: List artifacts directory
         run: ls ./artifacts/* -l
