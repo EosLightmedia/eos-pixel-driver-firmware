@@ -1,13 +1,9 @@
-import time
-from machine import Pin
-import neopixel
-
-pin0 = Pin(0, Pin.OUT)
-np = neopixel.NeoPixel(Pin(12), 3)
-pin0.value(0)
-np.fill((10, 0, 0))
-np.write()
-time.sleep(0.5)
-pin0.value(1)
-np.fill((0, 10, 0))
-np.write()
+try:
+    from pixel_driver import EPD
+    EPD().run_scene()
+except Exception as e:
+    import sys, rgb_logger
+    print("Critical Error", e)
+    raise e
+    sys.print_exception(e)
+    rgb_logger.RGBLogger().system_error()
