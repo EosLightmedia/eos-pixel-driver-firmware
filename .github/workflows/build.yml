@@ -41,9 +41,5 @@ jobs:
       - name: Move firmware to artifacts
         run: mv ./repos/micropython/ports/rp2/build/*.uf2 ./artifacts/
 
-      - name: Upload firmware artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: compiled-firmware
-          path: ./artifacts/
-
+      - name: List artifacts directory
+        run: ls ./artifacts/* -l
