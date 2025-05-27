@@ -113,7 +113,7 @@ class CNDL:
         exec(self.bytecode, _globals, _locals)
 
         for local in _locals:
-            self.locals[local][:] = np.clip(_locals[local], -1, 1)
+            self.locals[local] = np.clip(_locals[local], -1, 1)
 
         self.output[:] = np.clip(self.output[:], 0, 1)
 

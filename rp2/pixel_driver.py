@@ -20,10 +20,10 @@ class EPD:
         self.settings = {}
 
         try:
-            with open('settings.json') as settings_file:
+            with open('../../CNDL/settings.json') as settings_file:
                 self.settings = json.load(settings_file)
                 print(f'Settings loaded: {self.settings}')
-        except FileNotFoundError:
+        except OSError:
             print('No settings file found, using defaults')
 
         print('Applying settings...')
