@@ -20,7 +20,7 @@ class EPD:
         self.settings = {}
 
         try:
-            with open('../../CNDL/settings.json') as settings_file:
+            with open('settings.json') as settings_file:
                 self.settings = json.load(settings_file)
                 print(f'Settings loaded: {self.settings}')
         except OSError:
@@ -54,9 +54,14 @@ class EPD:
 
         frame_time = 15900  # 16ms - offset (calculated via oscilloscope)
         fade_frames = int(self.fade_frames)
+        last_time = time.ticks_ms()
 
         while True:
             t = time.ticks_us()
+            current_time = time.ticks_ms()
+            delta_time = time.ticks_diff(current_time, last_time) / 1000.0  # Convert to seconds
+            last_time = current_time
+
             fade_frames -= 1 if fade_frames > 0 else 0
             fade = (1. - (fade_frames / self.fade_frames))
 
@@ -64,7 +69,7 @@ class EPD:
             in2 = self.read_in2()
             self.logger.set_in1(in1)
             self.logger.set_in2(in2)
-            self.cndl.update({'IN1': in1, 'IN2': in2})
+            self.cndl.update({'IN1': in1, 'IN2': in2}, delta_time)
             _bytes = np.array(self.cndl.output * 255 * fade * self.brightness, dtype=np.uint8).tobytes()
 
             self.driver.write_bytes(_bytes)

@@ -9,6 +9,7 @@ class CNDL:
     def __init__(self, data):
         print('Loading CNDL')
 
+        self.delta_time = 0.0
         self.graph = {}
         for id1, data1 in data['operation'].items():
             self.graph[id1] = []
@@ -82,6 +83,7 @@ class CNDL:
                 'Y': lambda: self.map[:, 1],
                 'Z': lambda: self.map[:, 2],
                 'PI': lambda: np.pi,
+                'TIME': lambda: self.delta_time,
                 'ADD': lambda x=0, y=0: x + y,
                 'MUL': lambda x=1, y=1: x * y,
                 'WAVE': lambda x=0: (np.sin(((x - 0.25) * np.pi * 2)) + 1) / 2,
@@ -103,7 +105,8 @@ class CNDL:
     def _out(self, index, value):
         self.output[:, index] = value
 
-    def update(self, inputs: dict[str, float]):
+    def update(self, inputs: dict[str, float], delta_time: float = 0.0):
+        self.delta_time = delta_time
         self.inputs.update(inputs)
         _globals = {}
         _globals.update(self.operations)

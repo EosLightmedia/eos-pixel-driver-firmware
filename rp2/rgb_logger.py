@@ -48,13 +48,15 @@ class RGBLogger:
         self.pixels.fill((10, 10, 10))
         
     def system_error(self):
-        while True:
+        for i in range(3):
             self.pixels.fill((10, 0, 0))
             self.pixels.write()
             time.sleep_ms(500)
             self.pixels.fill((0, 0, 0))
             self.pixels.write()
             time.sleep_ms(500)
+        self.pixels.fill((10, 0, 0))
+        self.pixels.write()
 
     def boot_sequence(self):
         uv = [0., 0.33, 0.66]
