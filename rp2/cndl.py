@@ -90,7 +90,7 @@ class CNDL:
                 'FRAC': lambda x=0, y=0: x - np.floor(x),
                 'FLIP': lambda x=0: 1.0 - abs(x),
                 'SIGN': lambda x=0: np.sign(x),
-                'ROUND': lambda x=0: np.around(np.array([x]), decimals=0),
+                'ROUND': lambda x=0: np.around(np.array([x]), decimals=0).flatten(),
                 'REVERSE': lambda x=0: -x,
                 'SPOT': lambda x=0: -(x * x),
                 'ABS': lambda x=0: np.abs(x),
