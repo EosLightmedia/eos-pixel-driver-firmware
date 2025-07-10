@@ -23,10 +23,10 @@ class EPD:
             with open('settings.json') as settings_file:
                 self.settings = json.load(settings_file)
                 print(f'Settings loaded: {self.settings}')
+                print('Applying settings...')
         except OSError:
             print('No settings file found, using defaults')
 
-        print('Applying settings...')
         self.fade_frames = int(self.settings.get('fade', 120))
         self.brightness = self.settings.get('brightness', 1.0)
         driver_type: type[driver.ProtocolDriver] = driver.DRIVERS.get(self.settings.get('protocol', 'WS2812'))
@@ -70,9 +70,7 @@ class EPD:
             self.logger.set_in1(in1)
             self.logger.set_in2(in2)
             self.cndl.update({'IN1': in1, 'IN2': in2}, delta_time)
-            _bytes = np.array(self.cndl.output * 255 * fade * self.brightness, dtype=np.uint8).tobytes()
-
-            self.driver.write_bytes(_bytes)
+            self.driver.write_f_array((self.cndl.output * fade * self.brightness).reshape(-1))
 
             gc.collect()
             elapsed = time.ticks_diff(time.ticks_us(), t)
