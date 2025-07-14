@@ -113,6 +113,5 @@ class CNDL:
         for local in _locals:
             self.locals[local] = np.clip(_locals[local], -1, 1)
 
-        self.output[:] = np.clip(self.output[:], 0, 1)
-
+        self.output = np.clip(self.output, 0, 1)
         return _locals
