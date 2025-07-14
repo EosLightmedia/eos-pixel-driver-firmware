@@ -15,10 +15,8 @@ class EPD:
         print('Booting...')
         self.logger = RGBLogger()
         self.logger.boot_sequence()
-
         print('Loading settings...')
         self.settings = {}
-
         try:
             with open('settings.json') as settings_file:
                 self.settings = json.load(settings_file)
@@ -37,13 +35,12 @@ class EPD:
                 data = json.load(cndl_file)
 
             self.cndl = CNDL(data)
-
-            self.driver = driver_type(len(data['map']), len(data['personality']))
+            self.driver = driver_type()
 
         except Exception as e:
             print(f"Failed to load scene: {e}")
-            raise e
             self.logger.cndl_error()
+            raise e
 
         self.adc0 = machine.ADC(0)
         self.adc1 = machine.ADC(1)
@@ -55,6 +52,8 @@ class EPD:
         frame_time = 15900  # 16ms - offset (calculated via oscilloscope)
         fade_frames = int(self.fade_frames)
         last_time = time.ticks_ms()
+        inputs = {}
+        inputs.update(self.settings)
 
         while True:
             t = time.ticks_us()
@@ -63,19 +62,27 @@ class EPD:
             last_time = current_time
 
             fade_frames -= 1 if fade_frames > 0 else 0
-            fade = (1. - (fade_frames / self.fade_frames))
+            fade = 1.0 if self.fade_frames <= 1 else (1. - (fade_frames / self.fade_frames))
 
             in1 = self.read_in1()
             in2 = self.read_in2()
+            inputs["IN1"] = in1
+            inputs["IN2"] = in2
             self.logger.set_in1(in1)
             self.logger.set_in2(in2)
-            self.cndl.update({'IN1': in1, 'IN2': in2}, delta_time)
-            self.driver.write_f_array((self.cndl.output * fade * self.brightness).reshape(-1))
 
+            # 50%
+            self.cndl.update(inputs, delta_time)
+
+            _filtered = (self.cndl.output * fade * self.brightness).reshape(-1)
+            # 15%
+            self.driver.write_f_array(_filtered)
+
+            # 30%
             gc.collect()
-            elapsed = time.ticks_diff(time.ticks_us(), t)
-            ratio = 1. - min(max((elapsed - frame_time) / frame_time, 0), 1)
 
+            elapsed = time.ticks_diff(time.ticks_us(), t)
+            ratio = 1.0 - ((elapsed / frame_time) - 1.0)
             self.logger.processing_ratio(ratio)
 
             if elapsed < frame_time:
