@@ -12,17 +12,15 @@ class RGBLogger:
     
     @staticmethod
     def colorize_input(value: float):
-        if value > 0.95:
-            return 0, 20, 0
-
-        blue = int(value * 10.) + 10
-        green = int(value * 20.)
+        blue = int((min(max(1 - value, 0.), 1.) * 40))
+        green = int((min(max(value, 0.), 1.) * 40))
         return 0, green, blue
 
     @staticmethod
     def colorize_processor(value: float):
-        red = int((min(max(1 - value, 0.), 1.) * 40))
-        return red, 10, 0
+        value = int(min(max(value, 0.), 1.) * 40)
+        nvalue = 40 - value
+        return nvalue, value, 0
 
     def set_in1(self, value: float):
         self.pixels[2] = self.colorize_input(value)
@@ -33,21 +31,23 @@ class RGBLogger:
         self.pixels.write()
 
     def processing_ratio(self, value: float):
-        if value == 0.:
-            self.pixels[0] = (10, 0, 0)
-        else:
-            self.pixels[0] = self.colorize_processor(value)
+        self.pixels[0] = self.colorize_processor(value)
         self.pixels.write()
-    
+
     def cndl_error(self):
         print('CNDL ERROR')
-        self.pixels.fill((10, 10, 0))
-
-    def cndl_missing(self):
-        print('CNDL MISSING')
+        for i in range(3):
+            self.pixels.fill((10, 10, 10))
+            self.pixels.write()
+            time.sleep_ms(500)
+            self.pixels.fill((0, 0, 0))
+            self.pixels.write()
+            time.sleep_ms(500)
         self.pixels.fill((10, 10, 10))
+        self.pixels.write()
         
     def system_error(self):
+        print('SYSTEM ERROR')
         for i in range(3):
             self.pixels.fill((10, 0, 0))
             self.pixels.write()
@@ -70,5 +70,5 @@ class RGBLogger:
                     v = int(min(max((pow(x, 2) * -8) + 1, 0), 1) * 25)
                     self.pixels[i] = (v * color[0], v * color[1], v * color[2])
                 self.pixels.write()
-                time.sleep_ms(1000 // 60)
+                time.sleep_ms(1000 // 100)
             focal = -1
