@@ -29,8 +29,8 @@ class ProtocolDriver:
 
 
 class WS2812(ProtocolDriver):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, gamma=2.0):
+        super().__init__(gamma)
         print(f'Initializing WS2812 driver')
         self.pin = machine.Pin(15, machine.Pin.OUT)
         self.timing = (400, 850, 800, 450)
@@ -40,20 +40,19 @@ class WS2812(ProtocolDriver):
 
 
 class SK6812(ProtocolDriver):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, gamma=2.0):
+        super().__init__(gamma)
         print(f'Initializing SK6812 driver')
         self.pin = machine.Pin(15, machine.Pin.OUT)
         self.timing = (300, 900, 600, 600)  # Not confirmed
 
     def write_f_array(self, data):
-        self.output_buffer[:] = data
-        machine.bitstream(self.pin, 0, self.timing, self.output_buffer)
+        machine.bitstream(self.pin, 0, self.timing, self._apply_gamma(self.to_8bit(data)).tobytes())
 
 
 class DMX512(ProtocolDriver):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, gamma=2.0):
+        super().__init__(gamma)
         print(f'Initializing DMX512 driver')
 
     def write_f_array(self, data):

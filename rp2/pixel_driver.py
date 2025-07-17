@@ -27,6 +27,11 @@ class EPD:
 
         self.fade_frames = int(self.settings.get('fade', 120))
         self.brightness = self.settings.get('brightness', 1.0)
+        self.gamma = self.settings.get('gamma', 2.0)
+        self.input_smoothing = self.settings.get('input_smoothing', 10)
+        self.rolling_in1 = 0.5
+        self.rolling_in2 = 0.5
+
         driver_type: type[driver.ProtocolDriver] = driver.DRIVERS.get(self.settings.get('protocol', 'WS2812'))
 
         print('Loading scene...')
@@ -35,13 +40,13 @@ class EPD:
                 data = json.load(cndl_file)
 
             self.cndl = CNDL(data)
-            self.driver = driver_type()
 
         except Exception as e:
             print(f"Failed to load scene: {e}")
             self.logger.cndl_error()
             raise e
 
+        self.driver = driver_type(self.gamma)
         self.adc0 = machine.ADC(0)
         self.adc1 = machine.ADC(1)
         self.adc2 = machine.ADC(2)
@@ -64,12 +69,13 @@ class EPD:
             fade_frames -= 1 if fade_frames > 0 else 0
             fade = 1.0 if self.fade_frames <= 1 else (1. - (fade_frames / self.fade_frames))
 
-            in1 = self.read_in1()
-            in2 = self.read_in2()
-            inputs["IN1"] = in1
-            inputs["IN2"] = in2
-            self.logger.set_in1(in1)
-            self.logger.set_in2(in2)
+            self.rolling_in1 = (self.rolling_in1 + (self.read_in1() - self.rolling_in1) / self.input_smoothing)
+            self.rolling_in2 = (self.rolling_in2 + (self.read_in2() - self.rolling_in2) / self.input_smoothing)
+
+            inputs["IN1"] = self.rolling_in1
+            inputs["IN2"] = self.rolling_in2
+            self.logger.set_in1(self.rolling_in1)
+            self.logger.set_in2(self.rolling_in2)
 
             # 50%
             self.cndl.update(inputs, delta_time)

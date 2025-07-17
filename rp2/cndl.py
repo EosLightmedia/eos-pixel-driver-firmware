@@ -91,7 +91,7 @@ class CNDL:
                 'ROUND': lambda x=0: np.around(np.array([x]), decimals=0).flatten(),
                 'REVERSE': lambda x=0: -x,
                 'SPOT': lambda x=0: (-(x * x)) + 1.,
-                'ABS': lambda x=0: np.abs(x),
+                'ABS': lambda x=0: abs(x),
                 'SYM2UNI': lambda x=0: (x + 1) / 2,
                 'UNI2SYM': lambda x=0: (x * 2) - 1,
                 'CLIP': lambda x=0: np.clip(x, 0, 1),
